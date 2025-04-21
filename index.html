@@ -2,169 +2,80 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Koło Fortuny</title>
+    <title>Ko艂o Fortuny 100 Termin贸w</title>
     <style>
-        #wheelCanvas {
-            border: 2px solid #000;
-            border-radius: 50%;
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ffeb3b, #f44336);
+            color: #222;
+            text-align: center;
+            padding: 50px;
         }
-        #spinButton, #resetButton {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            margin-right: 10px;
+
+        #term {
+            font-size: 2em;
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #388E3C;
         }
     </style>
 </head>
 <body>
-    <canvas id="wheelCanvas" width="500" height="500"></canvas>
-    <br>
-    <button id="spinButton">Zakręć kołem</button>
-    <!button id="resetButton"></button>
+    <h1>馃帯 Ko艂o Fortuny: 100 Termin贸w</h1>
+    <button onclick="spinWheel()">Losuj termin</button>
+    <div id="term">Kliknij przycisk, by wylosowa膰 termin!</div>
 
     <script>
-        var canvas = document.getElementById("wheelCanvas");
-        var ctx = canvas.getContext("2d");
-
-        // Lista wszystkich imion
-        var allNames = ["Krzysiek", "Regina", "Julianka", "Ewelina", "Andrzej", "Alina", "Roma", "Tadzik"];
-
-        // Pobranie wylosowanych imion z localStorage
-        var drawnNames = JSON.parse(localStorage.getItem('drawnNames')) || [];
-
-        // Filtracja imion, które już zostały wylosowane
-        var names = allNames.filter(function(name) {
-            return !drawnNames.includes(name);
-        });
-
-        var startAngle = 0;
-        var arc = Math.PI / (names.length / 2);
-        var spinTimeout = null;
-
-        var spinAngleStart = 0;
-        var spinTime = 0;
-        var spinTimeTotal = 0;
-
-        drawWheel();
-
-        document.getElementById("spinButton").addEventListener("click", spinWheel);
-        document.getElementById("resetButton").addEventListener("click", resetWheel);
-
-function drawWheel() {
-    var outsideRadius = 200;
-    var textRadius = 160;
-    var insideRadius = 0;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    arc = Math.PI / (names.length / 2);
-
-    for (var i = 0; i < names.length; i++) {
-        var angle = startAngle + i * arc;
-        ctx.fillStyle = i % 2 == 0 ? "#FFCC00" : "#FF6600";
-
-        ctx.beginPath();
-        ctx.arc(250, 250, outsideRadius, angle, angle + arc, false);
-        ctx.arc(250, 250, insideRadius, angle + arc, angle, true);
-        ctx.fill();
-
-        // Dodanie czarnych linii między sektorami
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.save();
-
-        ctx.fillStyle = "black";
-        ctx.translate(250 + Math.cos(angle + arc / 2) * textRadius, 
-                      250 + Math.sin(angle + arc / 2) * textRadius);
-        ctx.rotate(angle + arc / 2 + Math.PI / 2);
-        var text = names[i];
-
-        // Ustawienie większego rozmiaru czcionki
-        ctx.font = "20px Arial";
-
-        ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
-        ctx.restore();
-    }
-
-    // Strzałka
-    ctx.fillStyle = "black";
-    ctx.beginPath();
-    ctx.moveTo(250 - 10, 230 - (outsideRadius + 20));
-    ctx.lineTo(250 + 10, 230 - (outsideRadius + 20));
-    ctx.lineTo(250, 230 - (outsideRadius - 20));
-    ctx.fill();
-}
-
+        const terms = [
+            "Korwinizm", "Feminizm", "Socjalizm", "Antyszczepionkowcy", "Globalne ocieplenie",
+            "Ziemia jest p艂aska", "Wolny rynek", "Konfederacja", "LGBT+", "Komunizm",
+            "Rz膮d 艣wiatowy", "5G powoduje raka", "Chemtrails", "Reptilianie", "Putin to cyborg",
+            "Cenzura internetu", "Bill Gates i czipy", "Aborcja", "Eutanazja", "Bro艅 dla obywateli",
+            "Wolno艣膰 s艂owa", "Gender", "Islamizacja Europy", "Klauzula sumienia", "W臋giel vs OZE",
+            "Szczepionki powoduj膮 autyzm", "Zamachy fa艂szywej flagi", "Lewactwo", "Prawactwo", "ZUS to piramida",
+            "Koniec 艣wiata 2030", "Masoneria", "Pedofilia w Ko艣ciele", "B贸g istnieje", "Ko艣ci贸艂 i pa艅stwo",
+            "Papier toaletowy w prawo czy w lewo?", "Mi臋so vs weganizm", "Podatek od deszczu", "Elon Musk to obcy",
+            "UFO nad Polsk膮", "Marsz Niepodleg艂o艣ci", "NATO to okupanci", "USA to imperium z艂a", "Ruskie trole",
+            "Inflacja to mit", "Bitcoin to sekta", "Sztuczna inteligencja nas zabije", "TikTok og艂upia",
+            "Harry Potter to satanizm", "P艂askoziemcy maj膮 racj臋", "S艂o艅ce to hologram", "Internet to iluzja",
+            "Matrix to dokument", "Antarktyda nie istnieje", "Chiny rz膮dz膮 艣wiatem", "Preppers to szale艅cy",
+            "5-minutowe miasta", "Polska silna", "Pi膮tka dla zwierz膮t", "Zakaz handlu", "Niskie podatki dla milioner贸w",
+            "Janusz Korwin-Mikke", "Donald Tusk to Niemiec", "Jaros艂aw Polsk臋 zbaw", "Trump 2024",
+            "Stop segregacji sanitarnej", "Rz膮d chce twoich danych", "Plandemia", "Szczepionkowe zombie",
+            "TikTok zakazany", "Szko艂a to wi臋zienie", "Nauczyciele zarabiaj膮 za du偶o", "Babcia m贸wi jak jest",
+            "M艂odzi to lenie", "Boomerzy winni inflacji", "Netflix promuje gender", "Disney si臋 sprzeda艂",
+            "Kot Schr枚dingera nie istnieje", "Psy s膮 lepsze ni偶 koty", "Pomidory to owoce",
+            "Banany zakrzywiaj膮 rzeczywisto艣膰", "Kosmici w艣r贸d nas", "Rz膮d kontroluje pogod臋", "HAARP",
+            "Chemia w jedzeniu nas zabija", "Krowy produkuj膮 metan", "Internet Explorer wr贸ci", "Facebook czyta my艣li",
+            "Memy to przysz艂o艣膰 komunikacji", "Kto zjad艂 moje frytki?", "Mleko z Biedronki to trucizna",
+            "Minister edukacji to bot", "Polski Sejm to teatr", "PiS vs PO to ustawka", "G艂osuj, ale po co?",
+            "Lewak = komunista?", "Prawak = faszysta?", "Szczury to szpiedzy", "Teczki Kiszczaka", "TVP vs TVN",
+            "Tr贸jk膮t Bermudzki w Ba艂tyku", "Samoloty to smoki", "Inflacja to z艂udzenie"
+        ];
 
         function spinWheel() {
-            if (names.length === 0) {
-                alert("Wszyscy zostali już wylosowani!");
-                document.getElementById("spinButton").disabled = true;
-                return;
-            }
-            spinAngleStart = Math.random() * 10 + 10;
-            spinTime = 0;
-            spinTimeTotal = Math.random() * 3000 + 4000;
-            rotateWheel();
-        }
-
-        function rotateWheel() {
-            spinTime += 30;
-            if (spinTime >= spinTimeTotal) {
-                stopRotateWheel();
-                return;
-            }
-            var spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
-            startAngle += (spinAngle * Math.PI / 180);
-            drawWheel();
-            spinTimeout = setTimeout(rotateWheel, 30);
-        }
-
-        function stopRotateWheel() {
-            clearTimeout(spinTimeout);
-            var degrees = startAngle * 180 / Math.PI + 90;
-            var arcd = arc * 180 / Math.PI;
-            var index = Math.floor((360 - (degrees % 360)) / arcd) % names.length;
-            ctx.save();
-            ctx.font = "bold 30px Arial";
-            var text = names[index];
-            alert("Wylosowano: " + text);
-            ctx.restore();
-
-            // Dodanie wylosowanego imienia do listy wylosowanych
-            drawnNames.push(text);
-            localStorage.setItem('drawnNames', JSON.stringify(drawnNames));
-
-            // Usunięcie wylosowanego imienia z aktualnej listy
-            names.splice(index, 1);
-
-            if (names.length == 0) {
-                alert("Wszyscy zostali już wylosowani!");
-                document.getElementById("spinButton").disabled = true;
-                drawWheel(); // Wyczyść koło
-            } else {
-                startAngle = 0;
-                drawWheel();
-            }
-        }
-
-        function resetWheel() {
-            // Usunięcie zapisanych wylosowanych imion
-            localStorage.removeItem('drawnNames');
-            drawnNames = [];
-            names = allNames.slice(); // Skopiowanie pełnej listy imion
-            startAngle = 0;
-            document.getElementById("spinButton").disabled = false;
-            drawWheel();
-        }
-
-        function easeOut(t, b, c, d) {
-            var ts = (t /= d) * t;
-            var tc = ts * t;
-            return b + c * (tc + -3 * ts + 3 * t);
+            const randomTerm = terms[Math.floor(Math.random() * terms.length)];
+            document.getElementById("term").textContent = randomTerm;
         }
     </script>
 </body>
 </html>
+
